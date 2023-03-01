@@ -40,7 +40,7 @@ import co.rikin.squiggles.ui.theme.Purple80
 import co.rikin.squiggles.ui.theme.PurpleGrey40
 import co.rikin.squiggles.ui.theme.PurpleGrey80
 import co.rikin.squiggles.ui.theme.SquigglesTheme
-import kotlin.math.ceil
+import kotlin.math.roundToInt
 import kotlin.math.sin
 
 const val PI = Math.PI.toFloat()
@@ -69,8 +69,9 @@ fun RebuildingSinaSquiggles() {
     val amplitude = 8.dp.toPx()
     val segment = wavelength / 4f
     val centerY = size.height / 2
-    val step = wave * wavelength
     val points = mutableListOf<Offset>()
+
+    val step = wave * wavelength
 
     var distance = 0f
     val path = Path().apply {
@@ -82,6 +83,7 @@ fun RebuildingSinaSquiggles() {
         val x2 = segment * 2 + distance + step
         val x3 = segment * 3 + distance + step
         val x4 = segment * 4 + distance + step
+
         val y1 = centerY - amplitude
         val y2 = centerY
         val y3 = centerY + amplitude
@@ -123,34 +125,54 @@ fun RebuildingSaketSquiggles() {
     )
   )
   val showPoints by remember { mutableStateOf(false) }
+
   Canvas(
     modifier = Modifier
       .fillMaxWidth()
       .height(60.dp)
   ) {
+
+    /*
+    general form of a sine function
+    y = a*sin(b*x - c) + d
+
+    a = amplitude (wave height)
+    b = stretch - 2pi / wavelength
+    c = phase (x) shift
+    d = vertical (y) shift
+    */
     val wavelength = 32.dp.toPx()
     val amplitude = 4.dp.toPx()
     val yShift = size.height / 2
+    val stretch = 2.pi() / wavelength
+    val xShift = wave * 2.pi()
 
-    val segment = wavelength / 10f
-    val numSegments = ceil(size.width / segment).toInt()
-    var pointX = 0f
-    val phase = wave * 2.pi()
+    fun sinY(x: Float): Float {
+      return amplitude * sin(stretch * x - xShift) + yShift
+    }
+
+    val horizontalPadding = 16.dp.toPx()
+    val actualWidth = size.width - horizontalPadding * 2
+    val segmentLength = wavelength / 10f
+    val numSegments = (actualWidth / segmentLength).roundToInt()
+
     val collectedPoints = mutableListOf<Offset>()
-    val path = Path().apply {
-      for (point in 0..numSegments) {
-        val b = 2.pi() / wavelength
-        val pointY = amplitude * sin((b * pointX) - phase) + yShift
 
-        when (point) {
+    var pointX = horizontalPadding
+    val path = Path().apply {
+      for (segment in 0..numSegments) {
+        val pointY = sinY(pointX)
+
+        when (segment) {
           0 -> moveTo(pointX, pointY)
           else -> lineTo(pointX, pointY)
         }
 
         collectedPoints.add(Offset(pointX, pointY))
-        pointX += segment
+        pointX += segmentLength
       }
     }
+
     drawPath(
       path = path,
       color = Purple80,
@@ -225,7 +247,6 @@ fun PathEffectSquiggles() {
   }
 }
 
-@Preview
 @Composable
 fun Squiggles() {
   SquigglesTheme {
