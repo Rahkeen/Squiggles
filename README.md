@@ -7,8 +7,8 @@ This is an exploration of creating squiggly UI using Android and Compose UI usin
 📹 Watch the video [here](https://youtu.be/zNNgIMZC8Uw)
 
 #### Code
-`components/Squiggles` - has different approaches on how to create animated squiggles.
-`components/Sliders` - has some slider components that are built with animated squiggles.
+- `components/Squiggles` - has different approaches on how to create animated squiggles.
+- `components/Sliders` - has some slider components that are built with animated squiggles.
 
 #### Tools
 - Compose UI
